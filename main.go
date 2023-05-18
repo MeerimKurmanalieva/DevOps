@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"net/http"
 )
 
 func main() {
-	if len(os.Args) > 1 {
-		name := os.Args[1]
-		fmt.Printf("Hello, %s!\n", name)
-	} else {
-		fmt.Println("Hello, World!")
-	}
+	http.HandleFunc("/", helloHandler)
+	http.ListenAndServe(":8080", nil)
+}
+
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, World!")
 }
