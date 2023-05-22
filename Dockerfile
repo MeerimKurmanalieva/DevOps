@@ -1,17 +1,15 @@
-# Start with a base Go language image
-FROM golang:latest
+# Use an official Go runtime as the base image
+FROM golang:1.16
 
-# Set the working directory inside the container
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy the Go project files to the container
-COPY main.go .
+# Copy the application source code to the container
+COPY . .
 
 
+# Build the Go application
+RUN go build -o main .
 
-
-# Expose the port on which the application will run
-EXPOSE 8080
-
-# Set the entry point command for the container
+# Set the entry point command to run the application
 CMD ["./main"]
