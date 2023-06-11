@@ -1,0 +1,28 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker
+        uses: docker/setup-docker@v1
+
+      - name: Build Docker image
+        run: docker build -t mkurmanalieva/myapp .
+
+      - name: Set up Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install ansible -y
+
+      - name: Run Ansible playbook
+        run: ansible-playbook playbook.yml
