@@ -17,7 +17,7 @@ jobs:
         uses: docker/setup-docker@v1
 
       - name: Build Docker image
-        run: docker build -t mkurmanalieva/myapp .
+        run: docker build -t mkurmanalieva/myapp:latest .
 
       - name: Set up Ansible
         run: |
