@@ -1,0 +1,29 @@
+---
+- name: Set up systemd service
+  hosts: 192.168.97.129
+  become: yes
+  vars:
+    app_port: 2222
+    ansible_become_pass: meka
+
+  tasks:
+    - name: Pull Docker image
+      docker_image:
+        name: mkurmanalieva/myapp:latest
+        source: pull
+
+    - name: Stop and remove existing container
+      docker_container:
+        name: myconteiner
+        image: mkurmanalieva/myapp:latest
+        state: stopped
+
+    - name: Create and run the Docker container
+      docker_container:
+        name: myconteiner1
+        image: mkurmanalieva/myapp:latest
+        ports:
+          - "8080:8080"
+
+        restart_policy: always
+        state: started

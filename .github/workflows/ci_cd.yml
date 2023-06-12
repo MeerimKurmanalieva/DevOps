@@ -1,24 +1,43 @@
-name: CI/CD
+name: Deploy to EC2 with Ansible
 
 on:
   push:
     branches:
       - main
 
+env:
+  ANSIBLE_HOST_KEY_CHECKING: false
+
 jobs:
-  build-and-push:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          ref: main
 
-      - name: Build and push Docker image
-        env:
-          DOCKER_HUB_USERNAME: ${{ secrets.mkurmanalieva }}
-          DOCKER_HUB_PASSWORD: ${{ secrets.Daren2014 }}
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
         run: |
-          docker build -t myapp:latest .
-          docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
-          docker tag myapp:latest  $DOCKER_HUB_USERNAME/myapp:latest 
-          docker push $DOCKER_HUB_USERNAME/myapp:latest 
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Configure SSH key for VM access
+        uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Run Ansible playbook
+        run: |
+          ansible-playbook -i inventory.ini deploy_app.yml --extra-vars "docker_image=mkurmanalieva/myapp:latest ec2_public_ip=${{ secrets.EC2_PUBLIC_IP }}" --connection ssh
+        env:
+          ANS_DEFAULT_REGION: us-east-1
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
