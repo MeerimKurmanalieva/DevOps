@@ -6,23 +6,24 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Docker
-        uses: docker/setup-docker@v1
+      - name: Set up SSH for VM access
+        uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Build Docker image
-        run: docker build -t mkurmanalieva/myapp:latest .
-
-      - name: Set up Ansible
+      - name: Deploy Docker container on VM
         run: |
-          sudo apt-get update
-          sudo apt-get install ansible -y
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.VM_USER }}@${{ secrets.VM_IP }} 'docker run -d --name myapp mkurmanalieva/myapp:latest'
+      
+      
 
       - name: Run Ansible playbook
-        run: ansible-playbook playbook.yml
+        run: ansible-playbook -i inventory.ini myapp.yml
