@@ -17,7 +17,7 @@ jobs:
         uses: docker/setup-docker@v1
 
       - name: Build Docker image
-        run: docker build -t $mkurmanalieva/myapp .
+        run: docker build -t mkurmanalieva/myapp .
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -30,14 +30,14 @@ jobs:
         run: |
           # Use AWS CLI to launch an EC2 instance
           instance_id=$(aws ec2 run-instances --image-id ami-022e1a32d3f742bd8 --instance-type t2.micro --security-group-ids sg-05f3ba95c7522dd4b --subnet-id subnet-0efe511974419f0f3 --key-name Key --output text --query 'Instances[0].InstanceId')
-          echo "Instance ID: $instance_id"
+          echo "Instance ID: ami-022e1a32d3f742bd8"
 
           # Wait for the instance to be running
-          aws ec2 wait instance-running --instance-ids $instance_id
+          aws ec2 wait instance-running --instance-ids ami-022e1a32d3f742bd8
 
           # Retrieve the public IP address of the instance
-          public_ip=$(aws ec2 describe-instances --instance-ids $instance_id --output text --query 'Reservations[0].Instances[0].PublicIpAddress')
-          echo "Public IP: $public_ip"
+          public_ip=$(aws ec2 describe-instances --instance-ids ami-022e1a32d3f742bd8 --output text --query 'Reservations[0].Instances[0].PublicIpAddress')
+          echo "Public IP: 35.170.167.92"
 
       - name: Deploy with Ansible
         run: ansible-playbook -i inventory.ini deploy_app.yml
@@ -45,7 +45,7 @@ jobs:
           SSH_USER: ${{ secrets.VM_USER }}
           SSH_HOST: $192.168.97.129
           SSH_PORT: ${{ secrets.VM_PORT }}
-          DOCKER_IMAGE: $mkurmanalieva/myapp:latest
-          CONTAINER_NAME: $myconteiner
+          DOCKER_IMAGE: mkurmanalieva/myapp:latest
+          CONTAINER_NAME: myconteiner
           CONTAINER_PORT: $8080
           HOST_PORT: $8080
