@@ -47,5 +47,5 @@ jobs:
           SSH_PORT: ${{ secrets.VM_PORT }}
           DOCKER_IMAGE: mkurmanalieva/myapp:latest
           CONTAINER_NAME: myconteiner
-          CONTAINER_PORT: $8080
-          HOST_PORT: $8080
+          CONTAINER_PORT: 8080
+          HOST_PORT: 8080
