@@ -14,16 +14,15 @@
 
     - name: Stop and remove existing container
       docker_container:
-        name: myconteiner
+        name: mycontainer
         image: mkurmanalieva/myapp:latest
-        state: stopped
+        state: absent
 
     - name: Create and run the Docker container
       docker_container:
-        name: myconteiner1
-        image: mkurmanalieva/myapp:latest
+        name: mycontainer
+        image: mkurmanalieva/myapp
         ports:
           - "8080:8080"
-
         restart_policy: always
         state: started

@@ -1,39 +1,51 @@
-name: Deploy to EC2 with Ansible
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - main
 
-env:
-  ANSIBLE_HOST_KEY_CHECKING: false
-
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: amazonlinux-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Set up Docker
+        uses: docker/setup-docker@v1
+
+      - name: Build Docker image
+        run: docker build -t $mkurmanalieva/myapp .
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          ref: main
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-      - name: Install dependencies
+      - name: Provision EC2 instance
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          # Use AWS CLI to launch an EC2 instance
+          instance_id=$(aws ec2 run-instances --image-id ami-022e1a32d3f742bd8 --instance-type t2.micro --security-group-ids sg-05f3ba95c7522dd4b --subnet-id subnet-0efe511974419f0f3 --key-name Key --output text --query 'Instances[0].InstanceId')
+          echo "Instance ID: $instance_id"
 
-      - name: Configure SSH key for VM access
-        uses: webfactory/ssh-agent@v0.5.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # Wait for the instance to be running
+          aws ec2 wait instance-running --instance-ids $instance_id
 
-      - name: Run Ansible playbook
-        run: |
-          ansible-playbook -i inventory.ini deploy_app.yml --extra-vars "docker_image=mkurmanalieva/myapp:latest ec2_public_ip=${{ secrets.EC2_PUBLIC_IP }}" --connection ssh
+          # Retrieve the public IP address of the instance
+          public_ip=$(aws ec2 describe-instances --instance-ids $instance_id --output text --query 'Reservations[0].Instances[0].PublicIpAddress')
+          echo "Public IP: $public_ip"
+
+      - name: Deploy with Ansible
+        run: ansible-playbook -i inventory.ini deploy_app.yml
         env:
-          ANS_DEFAULT_REGION: us-east-1
-          AWS_REGION: us-east-1
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
+          SSH_USER: ${{ secrets.VM_USER }}
+          SSH_HOST: $192.168.97.129
+          SSH_PORT: ${{ secrets.VM_PORT }}
+          DOCKER_IMAGE: $mkurmanalieva/myapp:latest
+          CONTAINER_NAME: $myconteiner
+          CONTAINER_PORT: $8080
+          HOST_PORT: $8080
