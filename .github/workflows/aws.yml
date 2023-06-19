@@ -3,7 +3,7 @@ name: Deploy to EC2 with Ansible
 on:
   push:
     branches:
-      - main
+      - master
 
 
 env:
