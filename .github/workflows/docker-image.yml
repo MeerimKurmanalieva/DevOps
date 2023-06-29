@@ -14,10 +14,10 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Build Docker image
-      run: docker build -t mkurmanalieva/myapp:latest .
+      run: docker build -t mkurmanalieva/myapp .
       
     - name: Log in to Docker Hub
       run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
       
     - name: Push Docker image to Docker Hub
-      run: docker push mkurmanalieva/myapp:latest
+      run: docker push mkurmanalieva/myapp
