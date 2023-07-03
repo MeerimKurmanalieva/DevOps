@@ -1,6 +1,6 @@
 ---
 - name: Set up systemd service
-  hosts: 192.168.97.129
+  hosts: 54.224.254.216
   become: yes
   vars:
     app_port: 2222
