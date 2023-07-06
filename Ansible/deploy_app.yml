@@ -40,6 +40,11 @@
         gpgkey: https://download.docker.com/linux/centos/gpg
         enabled: yes
 
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 86400
+
     - name: Install Docker packages
       package:
         name: docker-ce
