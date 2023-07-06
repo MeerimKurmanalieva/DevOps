@@ -45,7 +45,7 @@
 
     - name: Pull Docker image
       docker_image:
-        name: my-go-app:latest
+        name: mkurmanalieva/myapp:latest
         source: pull
 
     - name: Stop and Remove All Docker Containers
@@ -54,4 +54,4 @@
       ignore_errors: true
 
     - name: Run Docker container
-      command: docker run -d -p 8080:8080 my-go-app:latest
+      command: docker run -d -p 8080:8080 mkurmanalieva/myapp:latest
