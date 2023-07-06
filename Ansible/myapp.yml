@@ -19,8 +19,8 @@
 
     - name: Copy systemd service file
       copy:
-        src: /Users/meerimkurmanalieva/Desktop/Ansible/my_app.service.js
-        dest: /etc/systemd/system/my_app.service.js
+        src: /Users/meerimkurmanalieva/Desktop/Ansible/my_app.service.j2
+        dest: /etc/systemd/system/my_app.service.j2
         mode: 0644
 
     - name: Start and enable the service

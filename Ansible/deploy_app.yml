@@ -1,12 +1,41 @@
----
-- name: Set up systemd service
-  hosts: 192.168.97.129
-  become: yes
+- name: Install Docker and Deploy Application on EC2 Instance
+  hosts: my_ec2_instance
+  become: true
   vars:
     app_port: 2222
-    ansible_become_pass: meka
 
   tasks:
+    - name: Install Docker dependencies
+      package:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+      become: true
+
+    - name: Add Docker repository
+      yum_repository:
+        name: docker-ce-stable
+        description: Docker CE Stable - $basearch
+        baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+        gpgcheck: yes
+        gpgkey: https://download.docker.com/linux/centos/gpg
+        enabled: yes
+      become: true
+
+    - name: Install Docker
+      package:
+        name: docker-ce
+        state: present
+      become: true
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      become: true
+
     - name: Pull Docker image
       docker_image:
         name: mkurmanalieva/myapp:latest
@@ -23,6 +52,7 @@
         name: mycontainer
         image: mkurmanalieva/myapp
         ports:
-          - "8080:8080"
+          - "{{ app_port }}:8080"
         restart_policy: always
         state: started
+
