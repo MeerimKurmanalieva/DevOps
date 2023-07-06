@@ -16,18 +16,22 @@
           - lvm2
         state: present
 
-    - name: Download Docker installation script
-      get_url:
-        url: https://get.docker.com/
-        dest: /tmp/install-docker.sh
-        mode: '0755'
+    - name: Install containerd
+      yum:
+        name: containerd.io
+        state: present
 
-    - name: Run Docker installation script
-      command: /tmp/install-docker.sh
+    - name: Configure containerd
+      copy:
+        src: /tmp/containerd.conf
+        dest: /etc/containerd/config.toml
+        owner: root
+        group: root
+        mode: '0644'
 
-    - name: Start Docker service
+    - name: Start containerd service
       service:
-        name: docker
+        name: containerd
         state: started
         enabled: yes
 
