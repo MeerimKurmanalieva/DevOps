@@ -1,6 +1,6 @@
 ---
 - name: Deploy Docker container on EC2 instance
-  hosts: ec2-instance
+  hosts: my_ec2_instance
   become: true
   gather_facts: true
 
