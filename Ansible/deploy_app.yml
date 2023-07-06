@@ -54,4 +54,10 @@
       ignore_errors: true
 
     - name: Run Docker container
-      command: docker run -d -p 8080:8080 mkurmanalieva/myapp:latest
+  docker_container:
+      name: mycontainer
+      image: mkurmanalieva/myapp:latest
+      ports:
+        - "8080:8080"
+      restart_policy: always
+      state: started
