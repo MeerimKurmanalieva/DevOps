@@ -3,7 +3,7 @@
   become: true
 
   vars:
-    app_port: 2222
+    app_port: 8080
 
   tasks:
     - name: Check if Docker is installed
