@@ -5,30 +5,41 @@
   gather_facts: true
 
   tasks:
-    - name: Update apt package cache
-      apt:
-        update_cache: yes
+    - name: Stop all Docker containers
+      command: docker stop $(docker ps -a -q)
+      ignore_errors: true
+
+    - name: Remove all Docker containers
+      command: docker rm $(docker ps -a -q)
+      ignore_errors: true
 
     - name: Install dependencies for Docker installation
       package:
         name:
           - curl
           - ca-certificates
-          - gnupg
-          - lsb-release
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
         state: present
 
-    - name: Download Docker installation script
-      get_url:
-        url: https://get.docker.com/
-        dest: /tmp/install-docker.sh
-        mode: 0755
+    - name: Add Docker repository GPG key
+      shell: curl -fsSL https://download.docker.com/linux/centos/gpg | gpg --import -
+      changed_when: false
 
-    - name: Run Docker installation script
-      command: /tmp/install-docker.sh
-      args:
-        creates: /usr/bin/docker
-        warn: false
+    - name: Add Docker repository
+      yum_repository:
+        name: docker-ce-stable
+        description: Docker CE Stable - $basearch
+        baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+        gpgcheck: yes
+        gpgkey: https://download.docker.com/linux/centos/gpg
+        enabled: yes
+
+    - name: Install Docker
+      package:
+        name: docker-ce
+        state: present
 
     - name: Start Docker service
       service:
@@ -42,7 +53,7 @@
 
     - name: Run Docker container
       docker_container:
-        name: myconteiner4
+        name: myconteiner
         image: mkurmanalieva/myapp:latest
         ports:
           - "8080:8080"
