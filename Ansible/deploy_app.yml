@@ -14,16 +14,10 @@
       become: true
       ignore_errors: true
 
-    - name: Update all packages
-      yum:
-        name: '*'
-        state: latest
-
     - name: Ensure a list of packages are installed
       yum:
         name: "{{ packages }}"
         state: latest
-        update_cache: yes
       vars:
         packages:
           - python3-pip
@@ -31,17 +25,21 @@
           - device-mapper-persistent-data
           - lvm2
 
+    - name: Add Docker GPG key
+      rpm_key:
+        key: https://download.docker.com/linux/centos/gpg
+        state: present
+
     - name: Add Docker repository
       yum_repository:
         name: docker-ce-stable
         description: Docker CE Stable - $basearch
         baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
         gpgcheck: yes
-        gpgkey: https://download.docker.com/linux/centos/gpg
         enabled: yes
 
     - name: Install Docker packages
-      package:
+      yum:
         name: docker-ce
         state: latest
 
