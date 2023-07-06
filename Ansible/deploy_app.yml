@@ -1,43 +1,32 @@
----
 - name: Deploy Docker container on EC2 instance
   hosts: my_ec2_instance
   become: true
-  gather_facts: true
 
   tasks:
-    - name: Stop all Docker containers
-      command: docker stop $(docker ps -a -q)
-      ignore_errors: true
-
-    - name: Remove all Docker containers
-      command: docker rm $(docker ps -a -q)
-      ignore_errors: true
-
-    - name: Remove conflicting curl-minimal package
-      shell: yum remove -y curl-minimal
-
-    - name: Install dependencies for Docker installation
+    - name: Install Docker dependencies
       package:
         name:
-          - curl
+          - apt-transport-https
           - ca-certificates
-          - yum-utils
-          - device-mapper-persistent-data
-          - lvm2
+          - curl
+          - gnupg
+          - lsb-release
         state: present
 
-    - name: Add Docker repository GPG key
-      shell: curl -fsSL https://download.docker.com/linux/centos/gpg | gpg --import -
-      changed_when: false
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
 
     - name: Add Docker repository
-      yum_repository:
-        name: docker-ce-stable
-        description: Docker CE Stable - $basearch
-        baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
-        gpgcheck: yes
-        gpgkey: https://download.docker.com/linux/centos/gpg
-        enabled: yes
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+        state: present
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 86400
 
     - name: Install Docker
       package:
@@ -48,6 +37,15 @@
       service:
         name: docker
         state: started
+        enabled: yes
+
+    - name: Stop all Docker containers
+      command: docker stop $(docker ps -a -q)
+      ignore_errors: true
+
+    - name: Remove all Docker containers
+      command: docker rm $(docker ps -a -q)
+      ignore_errors: true
 
     - name: Pull Docker image
       docker_image:
@@ -56,8 +54,9 @@
 
     - name: Run Docker container
       docker_container:
-        name: myconteiner
+        name: mycontainer
         image: mkurmanalieva/myapp:latest
         ports:
           - "8080:8080"
+        restart_policy: always
         state: started
