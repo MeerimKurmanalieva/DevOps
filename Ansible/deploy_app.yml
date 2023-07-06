@@ -5,29 +5,30 @@
   gather_facts: true
 
   tasks:
-    - name: Update yum cache
-      yum:
-        name: '*'
-        state: latest
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
 
-    - name: Add Docker GPG key
-      rpm_key:
-        key: https://download.docker.com/linux/centos/gpg
+    - name: Install dependencies for Docker installation
+      package:
+        name:
+          - curl
+          - ca-certificates
+          - gnupg
+          - lsb-release
         state: present
 
-    - name: Add Docker repository
-      yum_repository:
-        name: docker-ce-stable
-        description: Docker CE Stable
-        baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
-        enabled: yes
-        gpgcheck: yes
-        gpgkey: https://download.docker.com/linux/centos/gpg
+    - name: Download Docker installation script
+      get_url:
+        url: https://get.docker.com/
+        dest: /tmp/install-docker.sh
+        mode: 0755
 
-    - name: Install Docker
-      yum:
-        name: docker-ce
-        state: present
+    - name: Run Docker installation script
+      command: /tmp/install-docker.sh
+      args:
+        creates: /usr/bin/docker
+        warn: false
 
     - name: Start Docker service
       service:
@@ -41,7 +42,7 @@
 
     - name: Run Docker container
       docker_container:
-        name: my-container
+        name: myconteiner4
         image: mkurmanalieva/myapp:latest
         ports:
           - "8080:8080"
