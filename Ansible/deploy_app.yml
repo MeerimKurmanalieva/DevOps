@@ -28,6 +28,7 @@
       service:
         name: docker
         state: started
+        enabled: true
 
     - name: Copy Html Code to Controller Node
       copy:
