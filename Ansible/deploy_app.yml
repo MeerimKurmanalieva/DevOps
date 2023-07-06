@@ -54,7 +54,7 @@
       ignore_errors: true
 
     - name: Run Docker container
-  docker_container:
+      docker_container:
       name: mycontainer
       image: mkurmanalieva/myapp:latest
       ports:
