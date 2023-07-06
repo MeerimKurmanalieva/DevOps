@@ -1,6 +1,6 @@
 
 - name: Install Docker and Deploy Application on EC2 Instance
-  hosts: 54.224.254.216
+  hosts: my_ec2_instance
   become: true
 
   vars:
