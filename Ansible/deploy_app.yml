@@ -15,48 +15,36 @@
       ignore_errors: true
 
     - name: Update all packages
-      apt:
-        upgrade: dist
+      yum:
+        name: '*'
+        state: latest
 
     - name: Ensure a list of packages are installed
-      apt:
+      yum:
         name: "{{ packages }}"
         state: latest
         update_cache: yes
       vars:
         packages:
           - python3-pip
-          - apt-transport-https
-          - ca-certificates
           - curl
-          - gnupg
-          - lsb-release
-          - software-properties-common
-
-    - name: Add Docker GPG key
-      apt_key:
-        url: https://download.docker.com/linux/centos/gpg
-        state: present
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
 
     - name: Add Docker repository
-      apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/centos/gpg {{ ansible_lsb.codename }} stable
-        state: present
-
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-        cache_valid_time: 86400
+      yum_repository:
+        name: docker-ce-stable
+        description: Docker CE Stable - $basearch
+        baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+        gpgcheck: yes
+        gpgkey: https://download.docker.com/linux/centos/gpg
+        enabled: yes
 
     - name: Install Docker packages
-      apt:
-        name: "{{ packages }}"
+      package:
+        name: docker-ce
         state: latest
-      vars:
-        packages:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
 
     - name: Enable Docker service at startup
       service:
@@ -90,8 +78,7 @@
         enabled: true
 
     - name: Pull Docker Image
-      shell: docker pull mkurmanalieva/myapp:latest
-
+      command: docker pull mkurmanalieva/myapp:latest
 
     - name: Run Docker container
       command: docker run -d -p 8080:8080 mkurmanalieva/myapp:latest
