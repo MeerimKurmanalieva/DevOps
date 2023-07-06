@@ -1,22 +1,15 @@
-- name: Install Docker and Deploy Application on EC2 Instance
+---
+- name: Deploy Docker container
   hosts: my_ec2_instance
   become: true
 
   tasks:
-    - name: Check if Docker is installed
-      stat:
-        path: /usr/bin/docker
-      register: docker_installed
-      become: false
-
     - name: Install Docker dependencies
       package:
         name:
           - yum-utils
           - device-mapper-persistent-data
           - lvm2
-      become: true
-      when: docker_installed.stat.exists == false
 
     - name: Add Docker repository
       yum_repository:
@@ -26,38 +19,28 @@
         gpgcheck: yes
         gpgkey: https://download.docker.com/linux/centos/gpg
         enabled: yes
-      become: true
-      when: docker_installed.stat.exists == false
 
     - name: Install Docker
       package:
         name: docker-ce
         state: present
-      become: true
-      when: docker_installed.stat.exists == false
 
     - name: Start and enable Docker service
       service:
         name: docker
         state: started
         enabled: yes
-      become: true
 
     - name: Pull Docker image
-      docker_image:
-        name: mkurmanalieva/myapp:latest
-        source: pull
+      command: docker pull mkurmanalieva/myapp:latest
 
-    - name: Stop and Remove All Docker Containers
-      command: docker container prune --force
-      changed_when: false
+    - name: Stop and remove existing container
+      command: docker stop mycontainer
+      ignore_errors: true
+
+    - name: Remove existing container
+      command: docker rm mycontainer
       ignore_errors: true
 
     - name: Run Docker container
-      docker_container:
-      name: mycontainer
-      image: mkurmanalieva/myapp:latest
-      ports:
-        - "8080:8080"
-      restart_policy: always
-      state: started
+      command: docker run -d -p 8080:8080 --name mycontainer mkurmanalieva/myapp:latest
