@@ -11,13 +11,12 @@ env:
 
 jobs:
   deploy:
-    runs-on: amazonlinux-latest
-
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          ref: main
+          ref: master
 
       - name: Use Node.js 16
         uses: actions/setup-node@v2
@@ -29,12 +28,13 @@ jobs:
           sudo apt-get install -y ansible
 
       - name: Set up SSH key
-        uses: webfactory/ssh-agent@v0.5.3
+        uses: webfactory/ssh-agent@v0.7.0
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Run Ansible playbook
         run: |
+          cd Ansible
           ansible-playbook -i inventory.ini deploy_app.yml \
             --inventory "${{ secrets.EC2_PUBLIC_IP }}," \
             --extra-vars "docker_image=mkurmanalieva/myapp:latest ec2_public_ip=${{ secrets.EC2_PUBLIC_IP }}" \

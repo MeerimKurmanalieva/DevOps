@@ -1,6 +1,8 @@
+
 - name: Install Docker and Deploy Application on EC2 Instance
-  hosts: my_ec2_instance
+  hosts: 54.224.254.216
   become: true
+
   vars:
     app_port: 2222
 
