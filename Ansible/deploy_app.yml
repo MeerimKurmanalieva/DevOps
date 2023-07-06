@@ -16,32 +16,20 @@
           - lvm2
         state: present
 
-    - name: Download containerd installation script
+    - name: Download Docker installation script
       get_url:
-        url: https://github.com/containerd/containerd/releases/download/v1.4.9/containerd-1.4.9-linux-amd64.tar.gz
-        dest: /tmp/containerd.tar.gz
+        url: https://get.docker.com
+        dest: /tmp/install-docker.sh
+        mode: '0755'
 
-    - name: Extract containerd installation script
-      unarchive:
-        src: /tmp/containerd.tar.gz
-        dest: /tmp/containerd
-
-    - name: Run containerd installation script
-      command: sh /tmp/containerd/install.sh
+    - name: Run Docker installation script
+      command: /tmp/install-docker.sh
       args:
-        creates: /usr/bin/containerd
+        creates: /usr/bin/docker
 
-    - name: Configure containerd
-      copy:
-        src: /tmp/containerd.conf
-        dest: /etc/containerd/config.toml
-        owner: root
-        group: root
-        mode: '0644'
-
-    - name: Start containerd service
+    - name: Start Docker service
       service:
-        name: containerd
+        name: docker
         state: started
         enabled: yes
 
