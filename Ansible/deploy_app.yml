@@ -52,12 +52,7 @@
         source: pull
 
     - name: Stop and Remove All Docker Containers
-      command: docker stop $(docker ps -aq)
-      changed_when: false
-      ignore_errors: true
-
-    - name: Remove all containers
-      command: docker rm $(docker ps -aq)
+      command: docker container prune --force
       changed_when: false
       ignore_errors: true
 
