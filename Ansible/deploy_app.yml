@@ -16,10 +16,20 @@
           - lvm2
         state: present
 
-    - name: Install containerd
-      yum:
-        name: containerd.io
-        state: present
+    - name: Download containerd installation script
+      get_url:
+        url: https://github.com/containerd/containerd/releases/download/v1.4.9/containerd-1.4.9-linux-amd64.tar.gz
+        dest: /tmp/containerd.tar.gz
+
+    - name: Extract containerd installation script
+      unarchive:
+        src: /tmp/containerd.tar.gz
+        dest: /tmp/containerd
+
+    - name: Run containerd installation script
+      command: sh /tmp/containerd/install.sh
+      args:
+        creates: /usr/bin/containerd
 
     - name: Configure containerd
       copy:
