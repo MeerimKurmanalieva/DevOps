@@ -4,43 +4,94 @@
   become: true
 
   tasks:
-    - name: Install Docker dependencies
-      package:
-        name:
-          - yum-utils
-          - device-mapper-persistent-data
-          - lvm2
+    - name: Stop Docker containers
+      shell: docker stop $(docker ps -a -q)
+      become: true
+      ignore_errors: true
 
-    - name: Add Docker repository
-      yum_repository:
-        name: docker-ce-stable
-        description: Docker CE Stable - $basearch
-        baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
-        gpgcheck: yes
-        gpgkey: https://download.docker.com/linux/centos/gpg
-        enabled: yes
+    - name: Remove Docker containers
+      shell: docker rm $(docker ps -a -q)
+      become: true
+      ignore_errors: true
 
-    - name: Install Docker
-      package:
-        name: docker-ce
+    - name: Update all packages
+      apt:
+        upgrade: dist
+
+    - name: Ensure a list of packages are installed
+      apt:
+        name: "{{ packages }}"
+        state: latest
+        update_cache: yes
+      vars:
+        packages:
+          - python3-pip
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - software-properties-common
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/centos/gpg
         state: present
 
-    - name: Start and enable Docker service
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/centos/gpg {{ ansible_lsb.codename }} stable
+        state: present
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 86400
+
+    - name: Install Docker packages
+      apt:
+        name: "{{ packages }}"
+        state: latest
+      vars:
+        packages:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+
+    - name: Enable Docker service at startup
       service:
         name: docker
         state: started
         enabled: yes
 
-    - name: Pull Docker image
-      command: docker pull mkurmanalieva/myapp:latest
+    - name: Upgrade pip
+      shell: "python3 -m pip install pip --upgrade"
 
-    - name: Stop and remove existing container
-      command: docker stop mycontainer
-      ignore_errors: true
+    - name: Ensure Python pip packages are installed
+      pip:
+        name: "{{ packages }}"
+        executable: /usr/bin/pip3
+      vars:
+        packages:
+          - boto
+          - boto3
+          - docker-compose
 
-    - name: Remove existing container
-      command: docker rm mycontainer
-      ignore_errors: true
+    - name: Add user to the docker group
+      user:
+        name: centos
+        groups: docker
+        append: yes
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Pull Docker Image
+      shell: docker pull mkurmanalieva/myapp:latest
+
 
     - name: Run Docker container
-      command: docker run -d -p 8080:8080 --name mycontainer mkurmanalieva/myapp:latest
+      command: docker run -d -p 8080:8080 mkurmanalieva/myapp:latest
