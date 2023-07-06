@@ -2,9 +2,6 @@
   hosts: my_ec2_instance
   become: true
 
-  vars:
-    app_port: 8080
-
   tasks:
     - name: Check if Docker is installed
       stat:
@@ -56,11 +53,5 @@
       changed_when: false
       ignore_errors: true
 
-    - name: Create and run the Docker container
-      docker_container:
-        name: mycontainer
-        image: mkurmanalieva/myapp:latest
-        ports:
-          - "{{ app_port }}:8080"
-        restart_policy: always
-        state: started
+    - name: Run Docker container
+      command: docker run -d -p 8080:8080 mkurmanalieva/myapp:latest
