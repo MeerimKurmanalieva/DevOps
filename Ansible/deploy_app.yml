@@ -1,29 +1,14 @@
 ---
-- name: Deploy Docker container
-  hosts: my_ec2_instance
+- name: Deploy Docker container on EC2 instance
+  hosts: ec2-instance
   become: true
+  gather_facts: true
 
   tasks:
-    - name: Stop Docker containers
-      shell: docker stop $(docker ps -a -q)
-      become: true
-      ignore_errors: true
-
-    - name: Remove Docker containers
-      shell: docker rm $(docker ps -a -q)
-      become: true
-      ignore_errors: true
-
-    - name: Ensure a list of packages are installed
+    - name: Update yum cache
       yum:
-        name: "{{ packages }}"
+        name: '*'
         state: latest
-      vars:
-        packages:
-          - python3-pip
-          - yum-utils
-          - device-mapper-persistent-data
-          - lvm2
 
     - name: Add Docker GPG key
       rpm_key:
@@ -33,49 +18,31 @@
     - name: Add Docker repository
       yum_repository:
         name: docker-ce-stable
-        description: Docker CE Stable - $basearch
-        baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
-        gpgcheck: yes
+        description: Docker CE Stable
+        baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
         enabled: yes
+        gpgcheck: yes
+        gpgkey: https://download.docker.com/linux/centos/gpg
 
-    - name: Install Docker packages
+    - name: Install Docker
       yum:
         name: docker-ce
-        state: latest
-
-    - name: Enable Docker service at startup
-      service:
-        name: docker
-        state: started
-        enabled: yes
-
-    - name: Upgrade pip
-      shell: "python3 -m pip install pip --upgrade"
-
-    - name: Ensure Python pip packages are installed
-      pip:
-        name: "{{ packages }}"
-        executable: /usr/bin/pip3
-      vars:
-        packages:
-          - boto
-          - boto3
-          - docker-compose
-
-    - name: Add user to the docker group
-      user:
-        name: centos
-        groups: docker
-        append: yes
+        state: present
 
     - name: Start Docker service
       service:
         name: docker
         state: started
-        enabled: true
 
-    - name: Pull Docker Image
-      command: docker pull mkurmanalieva/myapp:latest
+    - name: Pull Docker image
+      docker_image:
+        name: mkurmanalieva/myapp:latest
+        source: pull
 
     - name: Run Docker container
-      command: docker run -d -p 8080:8080 mkurmanalieva/myapp:latest
+      docker_container:
+        name: my-container
+        image: mkurmanalieva/myapp:latest
+        ports:
+          - "8080:8080"
+        state: started
