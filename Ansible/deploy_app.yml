@@ -27,7 +27,6 @@
       vars:
         packages:
           - python3-pip
-          - curl
           - yum-utils
           - device-mapper-persistent-data
           - lvm2
