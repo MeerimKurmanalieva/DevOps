@@ -51,11 +51,15 @@
         name: mkurmanalieva/myapp:latest
         source: pull
 
-    - name: Stop and remove existing container
-      docker_container:
-        name: mycontainer
-        image: mkurmanalieva/myapp:latest
-        state: absent
+    - name: Stop and Remove All Docker Containers
+      command: docker stop $(docker ps -aq)
+      changed_when: false
+      ignore_errors: true
+
+    - name: Remove all containers
+      command: docker rm $(docker ps -aq)
+      changed_when: false
+      ignore_errors: true
 
     - name: Create and run the Docker container
       docker_container:
