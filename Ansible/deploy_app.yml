@@ -3,8 +3,13 @@
   become: true
 
   tasks:
+    - name: Uninstall conflicting curl-minimal package
+      yum:
+        name: curl-minimal
+        state: absent
+
     - name: Install Docker dependencies
-      dnf:
+      yum:
         name:
           - curl
           - device-mapper-persistent-data
@@ -15,7 +20,7 @@
       command: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
     - name: Install Docker
-      dnf:
+      yum:
         name: docker-ce
         state: present
 
