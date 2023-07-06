@@ -3,35 +3,36 @@
   become: true
 
   tasks:
-    - name: Uninstall conflicting curl-minimal package
-      yum:
-        name: curl-minimal
-        state: absent
+    - name: Yum repolist for Docker
+      yum_repository:
+        name: docker
+        description: yum repository for docker
+        baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+        gpgcheck: no
 
-    - name: Install dependencies for Docker installation
-      yum:
-        name:
-          - curl
-          - device-mapper-persistent-data
-          - lvm2
+    - name: Package Installer For Docker
+      package:
+        name: docker-ce-3:18.09.1-3.el7
         state: present
 
-    - name: Download Docker installation script
-      get_url:
-        url: https://get.docker.com
-        dest: /tmp/install-docker.sh
-        mode: '0755'
+    - name: Package Installer For Python3 
+      package:
+        name: python3
+        state: present
 
-    - name: Run Docker installation script
-      command: /tmp/install-docker.sh
-      args:
-        creates: /usr/bin/docker
+    - name: Installing python library for the Docker Remote API
+      pip:
+        name: docker-py
 
-    - name: Start Docker service
+    - name: Start service docker
       service:
         name: docker
         state: started
-        enabled: yes
+
+    - name: Copy Html Code to Controller Node
+      copy:
+        src: ./webPage/
+        dest: /home/Web/
 
     - name: Stop all Docker containers
       command: docker stop $(docker ps -a -q)
@@ -52,5 +53,12 @@
         image: mkurmanalieva/myapp:latest
         ports:
           - "8080:8080"
+        volumes:
+          - /home/Web:/usr/local/apache2/htdocs/
         restart_policy: always
         state: started
+      register: status
+
+    - name: Check container status
+      debug:
+        var: status
