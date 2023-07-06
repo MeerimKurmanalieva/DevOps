@@ -13,6 +13,9 @@
       command: docker rm $(docker ps -a -q)
       ignore_errors: true
 
+    - name: Remove conflicting curl-minimal package
+      shell: yum remove -y curl-minimal
+
     - name: Install dependencies for Docker installation
       package:
         name:
