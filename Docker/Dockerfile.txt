@@ -1,0 +1,12 @@
+package Docker
+[Unit]
+Description=Hello World Application
+After=network.target
+
+[Service]
+ExecStart=/home/mkurmanalieva/Documents/DevOps/main.go
+WorkingDirectory=/home/mkurmanalieva/Documents/DevOps
+
+[Install]
+WantedBy=multi-user.target
+
