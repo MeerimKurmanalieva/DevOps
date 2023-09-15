@@ -2,8 +2,7 @@
 - name: Deploy Docker container on EC2 instance
   hosts: my_ec2_instance
   become: true
-  vars:
-    ansible_python_interpreter: /usr/bin/python3.9
+
 
   tasks:
     - name: Yum repolist for Docker
@@ -27,7 +26,6 @@
       become: yes
       shell: curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py
 
-
     - name: Installing python library for the Docker Remote API
       pip:
         name: docker-py
@@ -37,6 +35,13 @@
         name: docker
         state: started
         enabled: true
+
+    - name: Log in to Docker Hub
+      docker_login:
+        username: "{{ secrets.DOCKERHUB_USERNAME }}"
+        password: "{{ secrets.DOCKERHUB_TOKEN }}"
+        registry_url: https://index.docker.io/v1/
+      when: "'{{ secrets.DOCKERHUB_USERNAME }}' is defined and '{{ secrets.DOCKERHUB_TOKEN }}' is defined"
 
     - name: Stop all Docker containers
       command: docker stop $(docker ps -a -q)
@@ -48,13 +53,13 @@
 
     - name: Pull Docker image
       docker_image:
-        name: mkurmanalieva/hello-web-app:latest
+        name: "{{ secrets.DOCKERHUB_USERNAME }}/hello-web-app:latest"
         source: pull
 
     - name: Run Docker container
       docker_container:
         name: mycontainer
-        image: mkurmanalieva/hello-web-app:latest
+        image: "{{ secrets.DOCKERHUB_USERNAME }}/hello-web-app:latest"
         ports:
           - "8080:8080"
         volumes:
