@@ -33,8 +33,8 @@ jobs:
             docker rm $CONTAINER_IDS
           fi
 
-      - name: Pull Docker image from Docker Hub
-        run: docker pull ${{ secrets.DOCKER_USERNAME }}/hello-web-app:latest
+      #- name: Pull Docker image from Docker Hub
+      #run: docker pull ${{ secrets.DOCKER_USERNAME }}/hello-web-app:latest
 
       - name: Run Docker container from Docker Hub
         run: docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/hello-web-app:latest
