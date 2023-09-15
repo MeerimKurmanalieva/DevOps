@@ -1,6 +1,9 @@
+---
 - name: Deploy Docker container on EC2 instance
   hosts: my_ec2_instance
   become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.9
 
   tasks:
     - name: Yum repolist for Docker
@@ -15,10 +18,15 @@
         name: docker-ce-3:18.09.1-3.el7
         state: present
 
-    - name: Package Installer For Python3 
+    - name: Package Installer For Python3
       package:
         name: python3
         state: present
+
+    - name: Install pip for Python3
+      become: yes
+      shell: curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py
+
 
     - name: Installing python library for the Docker Remote API
       pip:
@@ -29,7 +37,6 @@
         name: docker
         state: started
         enabled: true
-
 
     - name: Stop all Docker containers
       command: docker stop $(docker ps -a -q)
