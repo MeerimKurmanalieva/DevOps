@@ -1,0 +1,25 @@
+- name: Set up systemd service
+  hosts: 192.168.97.129
+  become: yes  # Run tasks with sudo
+  vars:
+    ansible_become_pass: meka  # Replace with your actual sudo password
+
+  tasks:
+    - name: Copy application files to the VM
+      copy:
+        src: /Users/meerimkurmanalieva/Desktop/DevOps/main.go
+        dest: /home/mkurmanalieva/main.go
+      register: copy_result
+
+    - name: Create systemd service
+      systemd:
+          name: hello-world
+          enabled: yes
+          state: started
+          daemon_reload: yes
+      notify: restart hello-world
+
+    - name: Start the service
+      service:
+        name: hello-world
+        state: started

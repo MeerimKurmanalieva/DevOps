@@ -41,13 +41,13 @@
 
     - name: Pull Docker image
       docker_image:
-        name: mkurmanalieva/myapp:latest
+        name: mkurmanalieva/hello-web-app:latest
         source: pull
 
     - name: Run Docker container
       docker_container:
         name: mycontainer
-        image: mkurmanalieva/myapp:latest
+        image: mkurmanalieva/hello-web-app:latest
         ports:
           - "8080:8080"
         volumes:
