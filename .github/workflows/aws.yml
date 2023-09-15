@@ -31,10 +31,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Set SSH key permissions
-        run: |
-          chmod 600 $HOME/.ssh/id_rsa
-
       - name: Run Ansible playbook
         run: |
           cd Ansible
