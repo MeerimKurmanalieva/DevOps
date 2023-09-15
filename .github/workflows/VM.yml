@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Docker Build and Push
 
 on:
   push:
@@ -12,12 +12,15 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-      
-    - name: Build Docker image
-      run: docker build -t mkurmanalieva/myapp .
-      
+
     - name: Log in to Docker Hub
       run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
       
+    - name: Build Docker image
+      run: docker build -t hello-web-app
+
+    - name: Tag Docker image
+      run: docker tag hello-web-app ${{ secrets.DOCKER_USERNAME }}/hello-web-app:latest
+      
     - name: Push Docker image to Docker Hub
-      run: docker push mkurmanalieva/myapp
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/hello-web-app:latest

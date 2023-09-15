@@ -9,7 +9,7 @@ CONTAINER_NAME="hello-web-app"
 DOCKER_IMAGE="mkurmanalieva/hello-web-app:latest"
 DOCKER_CONTAINER_ID="5762bfc6c9a3"
 CONTAINER_PORT="8080"
-HOST_PORT="8080"
+HOST_PORT="8081"
 
 # Customize the Docker run options
 DOCKER_RUN_OPTIONS="-d -p $HOST_PORT:$CONTAINER_PORT"

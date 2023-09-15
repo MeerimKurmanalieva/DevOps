@@ -1,0 +1,12 @@
+[Unit]
+Description=Hello World Service
+After=network.target
+
+[Service]
+User=mkurmanalieva
+Group=mkurmanalieva
+ExecStart=/usr/bin/docker start -a 5762bfc6c9a3
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
