@@ -2,8 +2,7 @@
 - name: Install Docker on Target Host
   hosts: my_ec2_instance
   become: true
-  vars:
-    ansible_ssh_private_key_file: ${{ secrets.SSH_PRIVATE_KEY }}
+
 
   tasks:
     - name: Update APT package lists
@@ -52,7 +51,8 @@
         username: "{{ secrets.DOCKERHUB_USERNAME }}"
         password: "{{ secrets.DOCKERHUB_TOKEN }}"
         registry_url: https://index.docker.io/v1/
-      when: "'{{ secrets.DOCKERHUB_USERNAME }}' is defined and '{{ secrets.DOCKERHUB_TOKEN }}' is defined"
+      when: secrets.DOCKERHUB_USERNAME is defined and secrets.DOCKERHUB_TOKEN is defined
+
 
     - name: Stop all Docker containers
       command: docker stop $(docker ps -a -q)
@@ -64,15 +64,15 @@
 
     - name: Pull Docker image
       docker_image:
-        name: "{{ secrets.DOCKERHUB_USERNAME }}/hello-web-app:latest"
+        name: "mkurmanalieva/hello-web-app:latest"
         source: pull
 
     - name: Run Docker container
       docker_container:
         name: mycontainer
-        image: "{{ secrets.DOCKERHUB_USERNAME }}/hello-web-app:latest"
+        image: "mkurmanalieva/hello-web-app:latest"
         ports:
-          - "8080:8080"
+          - "8080:8081"
         volumes:
           - /home/Web:/usr/local/apache2/htdocs/
         restart_policy: always
