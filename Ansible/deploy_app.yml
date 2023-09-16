@@ -2,6 +2,8 @@
 - name: Install Docker on Target Host
   hosts: my_ec2_instance
   become: true
+  vars:
+    ansible_ssh_private_key_file: ${{ secrets.SSH_PRIVATE_KEY }}
 
   tasks:
     - name: Update APT package lists
