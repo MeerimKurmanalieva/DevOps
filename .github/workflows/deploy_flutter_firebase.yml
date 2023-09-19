@@ -27,14 +27,12 @@ jobs:
         working-directory: web_ui_flutter
         run: flutter build apk --release
 
-      - name: Deploy to Firebase
+      - name: Authenticate with Firebase
         run: |
-          echo "Logging into Firebase CLI"
-          npm install -g firebase-tools
-          firebase login:ci --no-localhost
-
-          echo "Distributing APK via Firebase App Distribution"
-          firebase appdistribution:distribute web_ui_flutter/build/app/outputs/flutter-apk/app-release.apk \
-            --app ${{ secrets.FIREBASE_APP_ID }} \
-            --token ${{ secrets.FIREBASE_TOKEN }} \
-            --groups testers
+            echo $FIREBASE_SERVICE_ACCOUNT_KEY > /tmp/firebase_key.json
+            npm install -g firebase-tools
+            firebase auth:import --token "$(< /tmp/firebase_key.json)"
+            firebase appdistribution:distribute web_ui_flutter/build/app/outputs/flutter-apk/app-release.apk \
+              --app ${{ secrets.FIREBASE_APP_ID }} \
+              --token ${{ secrets.FIREBASE_TOKEN }} \
+              --groups testers
