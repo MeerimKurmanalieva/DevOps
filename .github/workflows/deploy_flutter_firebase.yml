@@ -10,11 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install Node.js and npm
+        run: |
+          brew install node
+
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@v5
         with:
           flutter-version: 3.13.4
           channel: 'stable'
@@ -30,6 +34,10 @@ jobs:
       - name: Authenticate with Firebase
         run: |
           npm install -g firebase-tools
+          firebase use --add ${{ secrets.FIREBASE_PROJECT_ALIAS }} --token "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}"
+
+      - name: Upload APK to Firebase App Distribution
+        run: |
           firebase appdistribution:distribute web_ui_flutter/build/app/outputs/flutter-apk/app-release.apk \
             --app ${{ secrets.FIREBASE_APP_ID }} \
             --token "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" \
