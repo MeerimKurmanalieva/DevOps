@@ -19,7 +19,7 @@ jobs:
           flutter-version: 3.13.4
           channel": 'stable'
       - name: Change Directory to Flutter Project
-        run: cd /Users/meerimkurmanalieva/Desktop/DevOps/web_ui_flutter
+        run: cd /Users/meerimkurmanalieva/Desktop/DevOps
         working-directory: web_ui_flutter
 
       - name: Install Dependencies
