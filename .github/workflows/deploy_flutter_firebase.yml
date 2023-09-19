@@ -24,6 +24,7 @@ jobs:
 
       - name: Install Dependencies
         run: flutter pub get
+        working-directory: web_ui_flutter
 
 
       - name: Build APK
