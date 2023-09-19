@@ -31,8 +31,11 @@ jobs:
         run: |
           echo $FIREBASE_SERVICE_ACCOUNT_KEY > /tmp/firebase_key.json
           npm install -g firebase-tools
-          firebase auth:import --token "$(< /tmp/firebase_key.json)" --project flutter-app-9fabc
+          firebase login:ci --no-localhost
+
+      - name: Deploy to Firebase
+        run: |
           firebase appdistribution:distribute web_ui_flutter/build/app/outputs/flutter-apk/app-release.apk \
             --app ${{ secrets.FIREBASE_APP_ID }} \
             --token ${{ secrets.FIREBASE_TOKEN }} \
-            --groups testers --project flutter-app-9fabcd
+            --groups testers
