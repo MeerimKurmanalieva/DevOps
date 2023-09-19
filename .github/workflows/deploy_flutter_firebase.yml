@@ -10,15 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install Node.js and npm
-        run: |
-          brew install node
+
 
       - name: Checkout Repository
         uses: actions/checkout@v2
 
       - name: Set up Flutter
-        uses: subosito/flutter-action@v5
+        uses: subosito/flutter-action@v3
         with:
           flutter-version: 3.13.4
           channel: 'stable'
