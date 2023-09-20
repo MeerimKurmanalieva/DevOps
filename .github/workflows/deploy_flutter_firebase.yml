@@ -20,17 +20,18 @@ jobs:
           distribution: "zulu"
           java-version: "11"
 
+      # Add the Firebase login step here
+      - name: Firebase Login
+        run: |
+          npm install -g firebase-tools
+          firebase login
+
       - name: Decode google-services.json and Create Directory
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
           mkdir -p android/app
           echo "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
-
-      - name: Set GOOGLE_APPLICATION_CREDENTIALS
-        run: echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$HOME"/flutter-app-9fabc-firebase-adminsdk-ohvla-3a2e6b1e4e.json
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -51,12 +52,6 @@ jobs:
         with:
           name: release-apk
           path: web_ui_flutter/build/app/outputs/flutter-apk/app-release.apk
-
-      - name: Set up Firebase Admin SDK
-        run: |
-          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/flutter-app-9fabc-firebase-adminsdk-ohvla-3a2e6b1e4e.json"
-          
-       
 
       - name: Upload Artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
