@@ -11,9 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Comment out the checkout step
-      # - name: Checkout Repository
-      #   uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
       - name: Set up Java
         uses: actions/setup-java@v2
@@ -27,6 +26,11 @@ jobs:
         run: |
           mkdir -p android/app
           echo "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+
+      - name: Set GOOGLE_APPLICATION_CREDENTIALS
+        run: echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$HOME"/flutter-app-9fabc-firebase-adminsdk-ohvla-3a2e6b1e4e.json
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -42,5 +46,22 @@ jobs:
         working-directory: web_ui_flutter
         run: flutter build apk --release
 
-      - name: Confirm Contents of APK Directory
-        run: ls web_ui_flutter/build/app/outputs/flutter-apk
+      - name: Upload APK as Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: release-apk
+          path: web_ui_flutter/build/app/outputs/apk/debug/app-debug.apk
+
+      - name: Set up Firebase Admin SDK
+        run: |
+          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/flutter-app-9fabc-firebase-adminsdk-ohvla-3a2e6b1e4e.json"
+          
+       
+
+      - name: Upload Artifact to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFile: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+          groups: testers
+          file: web_ui_flutter/build/app/outputs/apk/debug/app-debug.apk
