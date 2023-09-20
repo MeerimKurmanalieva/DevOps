@@ -38,9 +38,10 @@ jobs:
       - name: Change to Firebase Project Directory
         run: cd web_ui_flutter
 
-      - name: Initialize Firebase Project
-        run: firebase init
+      - name: Firebase Login
+        run: firebase login --no-localhost
 
+          
       - name: Authenticate with Firebase
         run: |
           firebase use --add ${{ secrets.FIREBASE_PROJECT_ALIAS }} --token "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}"
