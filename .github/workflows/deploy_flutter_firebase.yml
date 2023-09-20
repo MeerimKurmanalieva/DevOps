@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: release-apk
-          path: web_ui_flutter/build/app/outputs/apk/debug/app-debug.apk
+          path: web_ui_flutter/build/app/outputs/flutter-apk/app-release.apk
 
       - name: Set up Firebase Admin SDK
         run: |
@@ -64,4 +64,4 @@ jobs:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFile: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
           groups: testers
-          file: web_ui_flutter/build/app/outputs/apk/debug/app-debug.apk
+          file: web_ui_flutter/build/app/outputs/flutter-apk/app-release.apk
