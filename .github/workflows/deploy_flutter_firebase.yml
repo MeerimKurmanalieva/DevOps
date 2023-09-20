@@ -38,17 +38,23 @@ jobs:
       - name: Change to Firebase Project Directory
         run: cd web_ui_flutter
 
-      - name: Firebase Login
-        run: firebase login --no-localhost
-
-          
-      - name: Authenticate with Firebase
+      - name: Set GOOGLE_APPLICATION_CREDENTIALS
         run: |
-          firebase use --add ${{ secrets.FIREBASE_PROJECT_ALIAS }} --token "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}"
+          echo $FIREBASE_SERVICE_ACCOUNT_KEY > $HOME/firebase-service-account.json
+          export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-service-account.json
+
+      - name: Authenticate with Firebase
+        run: firebase use --add ${{ secrets.FIREBASE_PROJECT_ALIAS }}
 
       - name: Upload APK to Firebase App Distribution
         run: |
           firebase appdistribution:distribute web_ui_flutter/build/app/outputs/flutter-apk/app-release.apk \
-            --app ${{ secrets.FIREBASE_APP_ID }} \
-            --token "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" \
-            --groups testers
+            --app ${{ secrets.FIREBASE_APP_ID }}
+
+      - name: Deploy to Firebase Hosting
+        run: |
+          firebase deploy --only hosting
+
+      - name: Deploy to Firebase with Token
+        run: |
+          firebase deploy --token "$FIREBASE_TOKEN"
