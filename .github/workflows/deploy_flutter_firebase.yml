@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install Node.js and npm
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nodejs npm
+
       - name: Checkout Repository
         uses: actions/checkout@v3
 
@@ -30,15 +35,13 @@ jobs:
       - name: Change to Firebase Project Directory
         run: cd web_ui_flutter
 
-      - name: Initialize Firebase Project
-        run: firebase init
-
-
-
       - name: Authenticate with Firebase
         run: |
           npm install -g firebase-tools
           firebase use --add ${{ secrets.FIREBASE_PROJECT_ALIAS }} --token "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}"
+
+      - name: Initialize Firebase Project
+        run: firebase init
 
       - name: Upload APK to Firebase App Distribution
         run: |
