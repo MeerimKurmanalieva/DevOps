@@ -1,15 +1,16 @@
 ---
-- name: Install Docker on Target Host
+- name: Install Docker on EC2 Instance
   hosts: my_ec2_instance
   become: true
 
   tasks:
-    - name: Update APT package lists
+    - name: Update APT package lists (for Ubuntu-based EC2 instances)
       become: yes
       apt:
         update_cache: yes
+      when: ansible_os_family == 'Debian'
 
-    - name: Install prerequisites for Docker
+    - name: Install prerequisites for Docker (for Ubuntu-based EC2 instances)
       become: yes
       apt:
         name: "{{ item }}"
@@ -19,24 +20,39 @@
         - ca-certificates
         - curl
         - software-properties-common
+      when: ansible_os_family == 'Debian'
 
-    - name: Add Docker GPG key
+    - name: Add Docker GPG key (for Ubuntu-based EC2 instances)
       become: yes
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
+      when: ansible_os_family == 'Debian'
 
-    - name: Add Docker APT repository
+    - name: Add Docker APT repository (for Ubuntu-based EC2 instances)
       become: yes
       apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
         state: present
+      when: ansible_os_family == 'Debian'
 
-    - name: Install Docker
+    - name: Install Docker (for Ubuntu-based EC2 instances)
       become: yes
       apt:
         name: docker-ce
         state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Install prerequisites for Docker (for Amazon Linux 2-based EC2 instances)
+      become: yes
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - docker
+        - docker-client
+        - docker-compose
+      when: ansible_os_family == 'Amazon'
 
     - name: Start Docker service
       become: yes
@@ -51,6 +67,7 @@
         password: "{{ secrets.DOCKERHUB_TOKEN }}"
         registry_url: https://index.docker.io/v1/
       when: secrets.DOCKERHUB_USERNAME is defined and secrets.DOCKERHUB_TOKEN is defined
+
     - name: Pull Docker image
       docker_image:
         name: "mkurmanalieva/my-web-app:latest"
@@ -63,7 +80,7 @@
         ports:
           - "8080:8080"
         volumes:
-          - /home/Web:/usr/local/apache2/htdocs/
+          - /home/ec2-user/Web:/usr/local/apache2/htdocs/
         restart_policy: always
         state: started
       register: status
