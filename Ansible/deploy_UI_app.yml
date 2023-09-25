@@ -3,8 +3,19 @@
   hosts: my_ec2_instance
   become: true
 
-
   tasks:
+    - name: Ensure Docker is installed (APT)
+      apt:
+        name: docker.io
+        state: present
+      when: ansible_pkg_mgr == "apt"
+
+    - name: Ensure Docker is installed (YUM)
+      yum:
+        name: docker
+        state: present
+      when: ansible_pkg_mgr == "yum"
+
     - name: Start Docker service
       become: yes
       service:
@@ -18,15 +29,6 @@
         password: "{{ secrets.DOCKERHUB_TOKEN }}"
         registry_url: https://index.docker.io/v1/
       when: secrets.DOCKERHUB_USERNAME is defined and secrets.DOCKERHUB_TOKEN is defined
-
-
-    - name: Stop all Docker containers
-      command: docker stop $(docker ps -a -q)
-      ignore_errors: true
-
-    - name: Remove all Docker containers
-      command: docker rm $(docker ps -a -q)
-      ignore_errors: true
 
     - name: Pull Docker image
       docker_image:
