@@ -12,8 +12,6 @@
         state: present
       with_items:
         - docker
-        - docker-client
-        - docker-compose
 
     - name: Start Docker service on Amazon Linux
       become: yes
