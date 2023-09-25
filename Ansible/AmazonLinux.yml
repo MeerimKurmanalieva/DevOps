@@ -1,23 +1,26 @@
 ---
 - name: Install Docker, Log in to Docker Hub, Pull Docker Image, and Run Docker Container
   hosts: my_ec2_instance
-  become: yes
+  become: true
+  gather_facts: true
 
   tasks:
     - name: Install prerequisites for Docker on Amazon Linux
+      become: yes
       yum:
         name: "{{ item }}"
         state: present
       with_items:
         - docker
-      when: "'amazon' in ansible_distribution"
+        - docker-client
+        - docker-compose
 
     - name: Start Docker service on Amazon Linux
+      become: yes
       service:
         name: docker
         state: started
         enabled: yes
-      when: "'amazon' in ansible_distribution"
 
     - name: Log in to Docker Hub
       docker_login:
