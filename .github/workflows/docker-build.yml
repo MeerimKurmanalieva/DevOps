@@ -30,7 +30,7 @@ jobs:
       - name: Run Ansible playbook
         run: |
           cd Ansible
-          ansible-playbook -i aws.ini deploy_UI_app.yml \
+          ansible-playbook -i aws.ini terraform.yml \
             --inventory "${{ secrets.EC2_PUBLIC_IP }}," \
             --connection ssh
         env:
