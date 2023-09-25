@@ -2,16 +2,16 @@
 - name: Install Docker, Log in to Docker Hub, Pull Docker Image, and Run Docker Container
   hosts: my_ec2_instance
   become: true
+  become_user: ec2-user  # Specify the user you want to become for the tasks
 
   tasks:
     - name: Update APT package lists (for Ubuntu-based EC2 instances)
       become: yes
       apt:
-      update_cache: yes
+        update_cache: yes
       when: ansible_os_family == 'Debian'
 
-
-    - name: Install prerequisites for Docker (for Ubuntu-based EC2 instances)
+    - name: Install prerequisites for Docker
       become: yes
       apt:
         name: "{{ item }}"
@@ -23,21 +23,21 @@
         - software-properties-common
       when: ansible_os_family == 'Debian'
 
-    - name: Add Docker GPG key (for Ubuntu-based EC2 instances)
+    - name: Add Docker GPG key
       become: yes
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
       when: ansible_os_family == 'Debian'
 
-    - name: Add Docker APT repository (for Ubuntu-based EC2 instances)
+    - name: Add Docker APT repository
       become: yes
       apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
         state: present
       when: ansible_os_family == 'Debian'
 
-    - name: Install Docker (for Ubuntu-based EC2 instances)
+    - name: Install Docker
       become: yes
       apt:
         name: docker-ce
@@ -63,18 +63,21 @@
         enabled: yes
 
     - name: Log in to Docker Hub
+      become: yes
       docker_login:
         username: "{{ secrets.DOCKERHUB_USERNAME }}"
         password: "{{ secrets.DOCKERHUB_TOKEN }}"
         registry_url: https://index.docker.io/v1/
       when: secrets.DOCKERHUB_USERNAME is defined and secrets.DOCKERHUB_TOKEN is defined
 
-    - name: Pull Docker image from Docker Hub
+    - name: Pull Docker image
+      become: yes
       docker_image:
         name: "mkurmanalieva/my-web-app:latest"
         source: pull
 
     - name: Run Docker container
+      become: yes
       docker_container:
         name: mycontainer
         image: "mkurmanalieva/my-web-app:latest"
