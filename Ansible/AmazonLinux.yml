@@ -1,0 +1,48 @@
+---
+- name: Install Docker, Log in to Docker Hub, Pull Docker Image, and Run Docker Container
+  hosts: ec2-user
+  become: yes
+
+  tasks:
+    - name: Install prerequisites for Docker on Amazon Linux
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - docker
+      when: "'amazon' in ansible_distribution"
+
+    - name: Start Docker service on Amazon Linux
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      when: "'amazon' in ansible_distribution"
+
+    - name: Log in to Docker Hub
+      docker_login:
+        username: "{{ secrets.DOCKERHUB_USERNAME }}"
+        password: "{{ secrets.DOCKERHUB_TOKEN }}"
+        registry_url: https://index.docker.io/v1/
+      when: secrets.DOCKERHUB_USERNAME is defined and secrets.DOCKERHUB_TOKEN is defined
+
+    - name: Pull Docker image
+      docker_image:
+        name: "mkurmanalieva/my-web-app:latest"
+        source: pull
+
+    - name: Run Docker container
+      docker_container:
+        name: mycontainer
+        image: "mkurmanalieva/my-web-app:latest"
+        ports:
+          - "8080:8080"
+        volumes:
+          - /home/ec2-user/Web:/usr/local/apache2/htdocs/
+        restart_policy: always
+        state: started
+      register: status
+
+    - name: Check container status
+      debug:
+        var: status
