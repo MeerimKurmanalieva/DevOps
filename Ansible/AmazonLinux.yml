@@ -1,6 +1,6 @@
 ---
 - name: Install Docker, Log in to Docker Hub, Pull Docker Image, and Run Docker Container
-  hosts: ec2-user
+  hosts: my_ec2_instance
   become: yes
 
   tasks:
