@@ -33,6 +33,16 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void createEC2Instance() {
+    // Implement the logic to create an EC2 instance here
+    // You can use a package like http or Dio to make API requests to your backend
+  }
+
+  void deleteEC2Instance() {
+    // Implement the logic to delete an EC2 instance here
+    // You can use a package like http or Dio to make API requests to your backend
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,6 +69,21 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton(
               onPressed: sendRequest,
               child: Text('Submit'),
+            ),
+            SizedBox(height: 20.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                ElevatedButton(
+                  onPressed: createEC2Instance,
+                  child: Text('Create EC2 Instance'),
+                ),
+                SizedBox(width: 20.0),
+                ElevatedButton(
+                  onPressed: deleteEC2Instance,
+                  child: Text('Delete EC2 Instance'),
+                ),
+              ],
             ),
             SizedBox(height: 20.0),
             Text(

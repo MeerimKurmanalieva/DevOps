@@ -10,13 +10,26 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 3 {
-		fmt.Println("Usage: cli <hostname:port> <name>")
+	if len(os.Args) < 4 {
+		fmt.Println("Usage: cli <hostname:port> <action> <name>")
 		os.Exit(1)
 	}
 
 	backendURL := os.Args[1]
-	name := os.Args[2]
+	action := os.Args[2]
+	name := os.Args[3]
+
+	var endpoint string
+
+	switch action {
+	case "create":
+		endpoint = "/api/ec2/create"
+	case "delete":
+		endpoint = "/api/ec2/terminate"
+	default:
+		fmt.Println("Invalid action. Use 'create' or 'delete'.")
+		os.Exit(1)
+	}
 
 	// Create a request payload
 	payload := map[string]string{"name": name}
@@ -26,11 +39,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Send a GET request to the backend
-	url := fmt.Sprintf("http://%s/api/hello", backendURL)
+	// Send a POST request to the appropriate endpoint
+	url := fmt.Sprintf("http://%s%s", backendURL, endpoint)
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(payloadBytes))
 	if err != nil {
-		fmt.Println("Error sending GET request:", err)
+		fmt.Println("Error sending POST request:", err)
 		os.Exit(1)
 	}
 	defer resp.Body.Close()

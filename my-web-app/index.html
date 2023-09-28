@@ -15,11 +15,25 @@
 <label for="server-response">Server Response:</label>
 <div id="server-response"></div>
 
+<!-- Create EC2 Instance Button -->
+<button onclick="createEC2Instance()">Create EC2 Instance</button>
+
+<!-- Delete EC2 Instance Button -->
+<button onclick="deleteEC2Instance()">Delete EC2 Instance</button>
+
 <script>
     function sendRequest() {
         var name = document.getElementById("name").value;
         var response = "Hello " + name + "!";
         document.getElementById("server-response").textContent = response;
+    }
+
+    function createEC2Instance() {
+        // Send a request to create an EC2 instance here
+    }
+
+    function deleteEC2Instance() {
+        // Send a request to delete the EC2 instance here
     }
 </script>
 </body>
