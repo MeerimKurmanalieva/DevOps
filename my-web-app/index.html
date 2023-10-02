@@ -29,11 +29,43 @@
     }
 
     function createEC2Instance() {
-        // Send a request to create an EC2 instance here
+        // Send a request to create an EC2 instance to your Go server
+        fetch('/api/ec2/create', {
+            method: 'POST',
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    throw new Error('Failed to create EC2 instance');
+                }
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error(error);
+            });
     }
 
     function deleteEC2Instance() {
-        // Send a request to delete the EC2 instance here
+        // Send a request to delete the EC2 instance to your Go server
+        fetch('/api/ec2/terminate', {
+            method: 'POST',
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    throw new Error('Failed to delete EC2 instance');
+                }
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error(error);
+            });
     }
 </script>
 </body>
