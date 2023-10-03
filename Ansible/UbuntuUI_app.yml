@@ -1,18 +1,18 @@
 ---
-- name: Install Docker on Target Host
+- name: Install database on Target Host
   hosts: my_ec2_instance
   become: true
 
 
   tasks:
-    - name: Start Docker service
+    - name: Start database service
       become: yes
       service:
         name: docker
         state: started
         enabled: yes
 
-    - name: Log in to Docker Hub
+    - name: Log in to database Hub
       docker_login:
         username: "{{ secrets.DOCKERHUB_USERNAME }}"
         password: "{{ secrets.DOCKERHUB_TOKEN }}"
@@ -20,23 +20,23 @@
       when: secrets.DOCKERHUB_USERNAME is defined and secrets.DOCKERHUB_TOKEN is defined
 
 
-    - name: Stop all Docker containers
+    - name: Stop all database containers
       command: docker stop $(docker ps -a -q)
       ignore_errors: true
 
-    - name: Remove all Docker containers
+    - name: Remove all database containers
       command: docker rm $(docker ps -a -q)
       ignore_errors: true
 
-    - name: Pull Docker image
+    - name: Pull database image
       docker_image:
-        name: "mkurmanalieva/my-web-app:latest"
+        name: "mkurmanalieva/frontend:latest"
         source: pull
 
-    - name: Run Docker container
+    - name: Run database container
       docker_container:
         name: mycontainer
-        image: "mkurmanalieva/my-web-app:latest"
+        image: "mkurmanalieva/frontend:latest"
         ports:
           - "8080:8080"
         volumes:

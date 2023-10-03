@@ -1,5 +1,5 @@
 ---
-- name: Install Docker on Target Host
+- name: Install database on Target Host
   hosts: my_ec2_instance
   become: true
 
@@ -10,7 +10,7 @@
       apt:
         update_cache: yes
 
-    - name: Install prerequisites for Docker
+    - name: Install prerequisites for database
       become: yes
       apt:
         name: "{{ item }}"
@@ -21,32 +21,32 @@
         - curl
         - software-properties-common
 
-    - name: Add Docker GPG key
+    - name: Add database GPG key
       become: yes
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
 
-    - name: Add Docker APT repository
+    - name: Add database APT repository
       become: yes
       apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
         state: present
 
-    - name: Install Docker
+    - name: Install database
       become: yes
       apt:
         name: docker-ce
         state: present
 
-    - name: Start Docker service
+    - name: Start database service
       become: yes
       service:
         name: docker
         state: started
         enabled: yes
 
-    - name: Log in to Docker Hub
+    - name: Log in to database Hub
       docker_login:
         username: "{{ secrets.DOCKERHUB_USERNAME }}"
         password: "{{ secrets.DOCKERHUB_TOKEN }}"
@@ -54,20 +54,20 @@
       when: secrets.DOCKERHUB_USERNAME is defined and secrets.DOCKERHUB_TOKEN is defined
 
 
-    - name: Stop all Docker containers
+    - name: Stop all database containers
       command: docker stop $(docker ps -a -q)
       ignore_errors: true
 
-    - name: Remove all Docker containers
+    - name: Remove all database containers
       command: docker rm $(docker ps -a -q)
       ignore_errors: true
 
-    - name: Pull Docker image
+    - name: Pull database image
       docker_image:
         name: "mkurmanalieva/hello-web-app:latest"
         source: pull
 
-    - name: Run Docker container
+    - name: Run database container
       docker_container:
         name: mycontainer
         image: "mkurmanalieva/hello-web-app:latest"

@@ -9,7 +9,7 @@ COPY index.html /usr/share/nginx/html
 
 
 # Expose port 8080
-EXPOSE 8080
+EXPOSE 80
 
 # Start the web server
 CMD ["nginx", "-g", "daemon off;"]

@@ -11,10 +11,10 @@ DOCKER_CONTAINER_ID="5762bfc6c9a3"
 CONTAINER_PORT="8080"
 HOST_PORT="8081"
 
-# Customize the Docker run options
+# Customize the database run options
 DOCKER_RUN_OPTIONS="-d -p $HOST_PORT:$CONTAINER_PORT"
 
-# Connect to the Linux machine over SSH and run the Docker container
+# Connect to the Linux machine over SSH and run the database container
 ssh -tt -p $SSH_PORT $SSH_USER@$SSH_HOST <<EOF
   # Stop and remove any existing container with the same name
   docker stop $CONTAINER_NAME || true

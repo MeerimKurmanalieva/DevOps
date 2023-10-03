@@ -1,11 +1,11 @@
 ---
-- name: Install Docker, Log in to Docker Hub, Pull Docker Image, and Run Docker Container
+- name: Install database, Log in to database Hub, Pull database Image, and Run database Container
   hosts: my_ec2_instance
   become: true
   gather_facts: true
 
   tasks:
-    - name: Install prerequisites for Docker on Amazon Linux
+    - name: Install prerequisites for database on Amazon Linux
       become: yes
       yum:
         name: "{{ item }}"
@@ -13,29 +13,29 @@
       with_items:
         - docker
 
-    - name: Start Docker service on Amazon Linux
+    - name: Start database service on Amazon Linux
       become: yes
       service:
         name: docker
         state: started
         enabled: yes
 
-    - name: Log in to Docker Hub
+    - name: Log in to database Hub
       docker_login:
         username: "{{ secrets.DOCKERHUB_USERNAME }}"
         password: "{{ secrets.DOCKERHUB_TOKEN }}"
         registry_url: https://index.docker.io/v1/
       when: secrets.DOCKERHUB_USERNAME is defined and secrets.DOCKERHUB_TOKEN is defined
 
-    - name: Pull Docker image
+    - name: Pull database image
       docker_image:
-        name: "mkurmanalieva/my-web-app:latest"
+        name: "mkurmanalieva/frontend:latest"
         source: pull
 
-    - name: Run Docker container
+    - name: Run database container
       docker_container:
         name: mycontainer
-        image: "mkurmanalieva/my-web-app:latest"
+        image: "mkurmanalieva/frontend:latest"
         ports:
           - "8080:8080"
         volumes:
